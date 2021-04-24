@@ -46,8 +46,8 @@ start
     mva #$C COLOR1
     mva #$0 COLOR2
 
-loop	
-    lda VCOUNT
+loop
+	lda VCOUNT
 	clc 
 	sbc 20
 	sta VCOUNT
@@ -57,7 +57,7 @@ loop
 
     org $3000
 font
-    .by $00,$00,$00,$00,$00,$00,$00,$00
+	.by $00,$00,$00,$00,$00,$00,$00,$00
 	.by $1E,$1E,$1E,$1E,$1E,$1E,$1E,$1E
 	.by $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 	.by $78,$78,$78,$78,$78,$78,$78,$78
