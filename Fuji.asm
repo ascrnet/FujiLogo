@@ -23,7 +23,6 @@ XITVBV = $E462
 dl
 :6  .by $70
     .by $70+$80
-
     .by $46
     .wo fuji
 :8  .by $06
@@ -82,8 +81,6 @@ wait
     beq exit
     jmp off_color 
 exit
-    lda #
-	jsr SETVBV
     mva #$E0 CHBAS
     rts
 
