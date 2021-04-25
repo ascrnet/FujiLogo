@@ -10,13 +10,18 @@ COLOR0 = $2C4
 COLOR1 = $2C5
 COLOR2 = $2C6
 CHBAS  = $2F4
-CH     = $2FC
+TRIG0  = $D010
+TRIG1  = $D011
 COLPF0 = $D016
+CONSOL = $D01F
+SKCTL  = $D20F
 WSYNC  = $D40A
 VCOUNT = $D40B
 NMIEN  = $D40E
 SETVBV = $E45C
 XITVBV = $E462	
+WARMSV = $E474
+
 
     org $2000
 
@@ -64,25 +69,27 @@ start
     mva #$C0 NMIEN
 
 loop
-    lda CH
-    bmi loop
+	lda TRIG0
+	beq off_color
+	lda TRIG1
+	beq off_color
+	lda SKCTL
+	and #$04
+	beq off_color
+	lda CONSOL
+	and #1
+	bne loop
 off_color
     lda RTCLOK
-    add #3
+    add #5
 wait
     cmp RTCLOK
     bne wait
-    ldx COLOR1
-    dex
-    txa
-    sta COLOR1
-    sta COLOR0
-    cpx #0
+    dec COLOR1
     beq exit
     jmp off_color 
 exit
-    mva #$E0 CHBAS
-    rts
+    jmp WARMSV
 
 vbi_rainbow
     mwa #dli VDSLST
