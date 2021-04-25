@@ -3,17 +3,27 @@
 ; 2021-04-24
 ;-----------------------------
 
+RTCLOK = $14
+VDSLST = $200
 SDLSTL = $230
+COLOR0 = $2C4
 COLOR1 = $2C5
 COLOR2 = $2C6
 CHBAS  = $2F4
+CH     = $2FC
 COLPF0 = $D016
+WSYNC  = $D40A
 VCOUNT = $D40B
+NMIEN  = $D40E
+SETVBV = $E45C
+XITVBV = $E462	
 
     org $2000
 
-dlist
-:7  .by $70
+dl
+:6  .by $70
+    .by $70+$80
+
     .by $46
     .wo fuji
 :8  .by $06
@@ -22,7 +32,7 @@ dlist
     .wo atari
 :3  .by $02
     .by $41
-    .wo dlist
+    .wo dl
 
 fuji
     .sb '        !"#         '
@@ -41,19 +51,64 @@ atari
     .sb '            OPQRGOPQRGSTWY              '
 
 start
-    mwa #dlist SDLSTL
+    mwa #dl SDLSTL
+    mwa #dli VDSLST
     mva #>font CHBAS
     mva #$C COLOR1
     mva #$0 COLOR2
 
-loop
-    lda VCOUNT
-    clc 
-    sbc 20
-    sta VCOUNT
-    sta COLPF0
-    jmp loop
+    lda #7
+    ldx #>vbi_rainbow
+    ldy #<vbi_rainbow
+    jsr SETVBV
 
+    mva #$C0 NMIEN
+
+loop
+    lda CH
+    bmi loop
+off_color
+    lda RTCLOK
+    add #3
+wait
+    cmp RTCLOK
+    bne wait
+    ldx COLOR1
+    dex
+    txa
+    sta COLOR1
+    sta COLOR0
+    cpx #0
+    beq exit
+    jmp off_color 
+exit
+    lda #
+	jsr SETVBV
+    mva #$E0 CHBAS
+    rts
+
+vbi_rainbow
+    mwa #dli VDSLST
+    mva #0 77
+    jmp XITVBV
+
+dli 
+    pha
+    txa
+    pha
+    ldx #$47
+move
+    txa
+    clc
+    adc RTCLOK
+    sta WSYNC
+    sta COLPF0
+    dex
+    bpl move
+    pla
+    tax
+    pla
+    rti
 
     org $3000
 font
