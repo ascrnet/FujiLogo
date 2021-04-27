@@ -22,6 +22,9 @@ SETVBV = $E45C
 XITVBV = $E462	
 WARMSV = $E474
 
+    org $80
+
+rainbow .ds 1
 
     org $2000
 
@@ -60,6 +63,7 @@ start
     mva #>font CHBAS
     mva #$C COLOR1
     mva #$0 COLOR2
+    mva #$0 rainbow
 
     lda #7
     ldx #>vbi_rainbow
@@ -69,16 +73,16 @@ start
     mva #$C0 NMIEN
 
 loop
-	lda TRIG0
-	beq off_color
-	lda TRIG1
-	beq off_color
-	lda SKCTL
-	and #$04
-	beq off_color
-	lda CONSOL
-	and #1
-	bne loop
+    lda TRIG0
+    beq off_color
+    lda TRIG1
+    beq off_color
+    lda SKCTL
+    and #$04
+    beq off_color
+    lda CONSOL
+    and #1
+    bne loop
 off_color
     lda RTCLOK
     add #5
@@ -100,11 +104,28 @@ dli
     pha
     txa
     pha
+    lda RTCLOK
+    cmp #$A
+    bne move_rainbow
+    inc rainbow
+    lda rainbow
+    cmp #2
+    bne move_rainbow
+    mva #0 rainbow
+move_rainbow
     ldx #$47
+    lda rainbow
+    tay
 move
     txa
     clc
+    cpy #1
+    bne up
+    sbc RTCLOK
+    jmp cont
+up
     adc RTCLOK
+cont
     sta WSYNC
     sta COLPF0
     dex
